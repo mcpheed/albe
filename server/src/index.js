@@ -14,6 +14,7 @@ async function start() {
   app.use(express.json({ limit: '5mb' }));
 
   app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
+  app.get('/', (req, res) => res.send('Albe API ✓ — try /health or POST /api/demo/seed'));
   app.use('/api', dataRoutes);
 
   app.listen(PORT, () => console.log(`Albe server listening on http://localhost:${PORT}`));

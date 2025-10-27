@@ -11,10 +11,9 @@ async function connectDB() {
     await mongoose.connect(uri, { dbName });
     console.log('[DB] Connected to MongoDB Atlas');
   } else {
-    // Pin a Debian 12+ compatible MongoDB version (>=7.0.3).
-    const version = process.env.MONGOMS_VERSION || '7.0.14';
+    const version = process.env.MONGOMS_VERSION || '7.0.14'; // Debian 12+ compatible
     mongod = await MongoMemoryServer.create({
-      binary: { version },                   // <-- key line
+      binary: { version },
       instance: { storageEngine: 'ephemeralForTest' }
     });
     const memUri = mongod.getUri();
