@@ -7,16 +7,18 @@ function analyze(samples) {
     const root = path.resolve(__dirname, '../../..'); // .../albe
     const script = path.join(root, 'analytics', 'analyze.py');
 
-    const child = spawn(py, [script], { cwd: root });
+    console.log(`[py] using: ${py}`);
+    console.log(`[py] script: ${script}`);
+    const child = spawn(py, ['-u', script], { cwd: root });
 
     let out = '';
     let err = '';
-    child.stdout.on('data', d => out += d.toString());
-    child.stderr.on('data', d => err += d.toString());
+    child.stdout.on('data', d => { out += d.toString(); process.stdout.write('[py-out] ' + d.toString()); });
+    child.stderr.on('data', d => { err += d.toString(); process.stdout.write('[py-err] ' + d.toString()); });
     child.on('error', reject);
     child.on('close', code => {
       if (code !== 0) {
-        return reject(new Error(`analyze.py exited ${code}: ${err}`));
+        return reject(new Error(`analyze.py exited ${code}: ${err || out}`));
       }
       try {
         const parsed = JSON.parse(out);
@@ -33,3 +35,4 @@ function analyze(samples) {
 }
 
 module.exports = { analyze };
+
