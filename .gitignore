@@ -14,3 +14,16 @@ __pycache__/
 *.swp
 .vscode/
 .idea/
+# --- live sensors streaming ---
+server/node_modules/
+client/node_modules/
+server/.env
+client/.env
+firmware/.pio/
+.DS_Store
+dist/
+build/
+
+# ignore accidental nested dirs
+server/server/
+server/client/

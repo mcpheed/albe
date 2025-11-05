@@ -1,27 +1,25 @@
-require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
-const { connectDB } = require('./db/memory');
-const dataRoutes = require('./routes/data');
+const { WebSocketServer } = require('ws');
+const { setupStream } = require('../sensors/stream');
 
-const PORT = process.env.PORT || 4000;
+const app = express();
+app.use(cors());
+app.get('/', (_req, res) => res.send('ALBAE server up'));
 
-async function start() {
-  await connectDB();
-  const app = express();
+const server = http.createServer(app);
 
-  app.use(cors({ origin: 'http://localhost:5173' }));
-  app.use(express.json({ limit: '5mb' }));
-
-  app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
-  app.get('/', (req, res) => res.send('Albe API ✓ — try /health or POST /api/demo/seed'));
-  app.use('/api', dataRoutes);
-
-  app.listen(PORT, () => console.log(`Albe server listening on http://localhost:${PORT}`));
-}
-
-start().catch(err => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
+// WebSocket on /ws
+const wss = new WebSocketServer({ server, path: '/ws' });
+wss.on('connection', (ws) => {
+  ws.send(JSON.stringify({ ts_ms: Date.now(), event: 'connected' }));
+  console.log('[WS] client connected');
 });
 
+setupStream({ wss });
+
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+  console.log(`ALBAE server listening on http://localhost:${PORT}`);
+});
